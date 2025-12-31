@@ -2,7 +2,7 @@
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Search } from 'lucide-react';
 
 interface ForecastChartProps {
   data: Array<{
@@ -19,10 +19,66 @@ interface ForecastChartProps {
     wind: {
       speed: number;
     };
-  }>;
+  }> | null; // Allow null
 }
 
 export default function ForecastChart({ data }: ForecastChartProps) {
+  // Guard clause - Show empty state if no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full space-y-8">
+        {/* Header with stats */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded-lg bg-blue-500/20">
+              <TrendingUp className="w-4 h-4 text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em]">
+                Projected Timeline
+              </h3>
+              <p className="text-sm text-gray-300">Next 5 hours • Real-time updates</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Empty state */}
+        <div className="h-[280px] w-full flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="inline-flex p-4 rounded-2xl bg-white/5">
+              <Search className="w-8 h-8 text-gray-400" />
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-2">
+                No Forecast Data
+              </h4>
+              <p className="text-gray-400 max-w-md">
+                Search for a city to see detailed hourly forecast and temperature trends
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Placeholder for hourly details */}
+        <div className="grid grid-cols-5 gap-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div 
+              key={i} 
+              className="text-center p-4 rounded-2xl bg-white/5 animate-pulse"
+            >
+              <div className="h-4 bg-white/10 rounded mb-4"></div>
+              <div className="my-3">
+                <div className="w-10 h-10 mx-auto bg-white/10 rounded-full"></div>
+              </div>
+              <div className="h-8 bg-white/10 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Original chart code - only runs when data exists
   const chartData = data.map((item, index) => ({
     time: format(new Date(item.dt * 1000), 'h a'),
     fullTime: format(new Date(item.dt * 1000), 'h:mm a'),

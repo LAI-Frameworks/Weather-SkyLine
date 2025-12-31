@@ -4,26 +4,73 @@ import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [weather, setWeather] = useState<any>(null);
-  const [city, setCity] = useState('London');
-  const [loading, setLoading] = useState(true);
+  const [city, setCity] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchWeather();
-  }, []);
+  const originalConsoleError = console.error;
+console.error = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes('Weather service error')) {
+    return; // Don't log our expected errors
+  }
+  originalConsoleError.apply(console, args);
+};
 
-  const fetchWeather = async (cityName = city) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/weather?city=${cityName}`);
-      const data = await res.json();
-      setWeather(data);
-      setCity(cityName);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+ const fetchWeather = async (cityName = city) => {
+  // Clear any previous error
+  setError(null);
+  
+  // Validate input
+  if (!cityName.trim()) {
+    setError("Please enter a city name");
+    return;
+  }
+
+  setLoading(true);
+  
+  try {
+    const res = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`);
+    
+    if (!res.ok) {
+      if (res.status === 404) {
+        throw new Error(`City "${cityName}" not found. Try another city.`);
+      } else if (res.status === 400) {
+        throw new Error('Invalid city name. Please check spelling.');
+      } else if (res.status === 429) {
+        throw new Error('Too many requests. Please wait a moment.');
+      } else if (res.status === 500) {
+        // Changed to more user-friendly message
+        throw new Error('Weather service is temporarily unavailable. Please try again in a few minutes.');
+      } else {
+        throw new Error('Unable to fetch weather data. Please try again.');
+      }
     }
-  };
+    
+    const data = await res.json();
+    
+    // Check if API returned valid data
+    if (data.cod && data.cod !== 200) {
+      throw new Error(data.message || 'Failed to fetch weather data');
+    }
+    
+    setWeather(data);
+    setCity(cityName);
+    
+  } catch (error: any) {
+    // Don't log in production
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Weather fetch error:', error.message);
+    }
+    
+    setError(error.message || 'Weather service is currently unavailable. Please try again.');
+    setWeather(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Quick search suggestions
+  const quickSearchCities = ['Tokyo', 'New York', 'London', 'Dubai', 'Mumbai', 'Singapore'];
 
   return (
     <div style={{
@@ -46,28 +93,28 @@ export default function Home() {
               Weather<span style={{ color: '#60a5fa' }}>Flow</span>
             </h1>
             <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
-              Professional Weather Dashboard
+              AI-Powered Weather Intelligence
             </p>
           </div>
           
           <div suppressHydrationWarning style={{
-  background: 'rgba(255, 255, 255, 0.1)',
-  backdropFilter: 'blur(10px)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  borderRadius: '1rem',
-  padding: '1rem 1.5rem',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.75rem'
-}}>
-  <span>🕐</span>
-  <span style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
-    {new Date().toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    }).toUpperCase()}
-  </span>
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '1rem',
+            padding: '1rem 1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <span>🕐</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
+              {new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+              }).toUpperCase()}
+            </span>
           </div>
         </div>
 
@@ -84,51 +131,87 @@ export default function Home() {
             <input
               type="text"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setError(null);
+              }}
               onKeyDown={(e) => e.key === 'Enter' && fetchWeather()}
               placeholder="Search for a city..."
               style={{
                 flex: 1,
                 background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                border: error 
+                  ? '1px solid rgba(239, 68, 68, 0.5)' 
+                  : '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '0.75rem',
                 padding: '0.75rem 1rem',
                 color: 'white',
-                fontSize: '1rem'
+                fontSize: '1rem',
+                outline: 'none'
               }}
             />
             <button
               onClick={() => fetchWeather()}
-              disabled={loading}
+              disabled={loading || !city.trim()}
               style={{
-                background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+                background: city.trim() && !error
+                  ? 'linear-gradient(135deg, #3b82f6, #06b6d4)' 
+                  : 'rgba(255, 255, 255, 0.1)',
                 color: 'white',
                 padding: '0.75rem 1.5rem',
                 borderRadius: '0.75rem',
                 border: 'none',
                 fontWeight: 600,
-                cursor: 'pointer',
-                fontSize: '1rem'
+                cursor: city.trim() && !error ? 'pointer' : 'not-allowed',
+                fontSize: '1rem',
+                transition: 'all 0.2s'
               }}
             >
-              {loading ? 'Loading...' : 'Search'}
+              {loading ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ 
+                    width: '16px', 
+                    height: '16px', 
+                    border: '2px solid rgba(255,255,255,0.3)', 
+                    borderTopColor: 'white', 
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></span>
+                  Analyzing...
+                </span>
+              ) : 'Search'}
             </button>
           </div>
           
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {['London', 'New York', 'Tokyo', 'Paris'].map((c) => (
+          {/* Quick Search Suggestions */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '0.5rem', 
+            flexWrap: 'wrap',
+            marginTop: '0.5rem'
+          }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+              Popular:
+            </span>
+            {quickSearchCities.map((c) => (
               <button
                 key={c}
-                onClick={() => fetchWeather(c)}
+                onClick={() => {
+                  setCity(c);
+                  fetchWeather(c);
+                }}
                 style={{
                   background: 'rgba(255, 255, 255, 0.1)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '0.5rem',
-                  padding: '0.5rem 1rem',
+                  padding: '0.35rem 0.75rem',
                   color: 'white',
                   cursor: 'pointer',
-                  fontSize: '0.875rem'
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s'
                 }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
               >
                 {c}
               </button>
@@ -136,8 +219,56 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.75rem',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.75rem',
+            animation: 'fadeIn 0.3s ease-in'
+          }}>
+            <span style={{ fontSize: '1.25rem', marginTop: '0.125rem' }}>⚠️</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ 
+                color: '#f87171', 
+                fontWeight: 600, 
+                margin: 0,
+                fontSize: '1rem'
+              }}>
+                {error}
+              </p>
+              <p style={{ 
+                color: '#fca5a5', 
+                fontSize: '0.875rem', 
+                marginTop: '0.25rem', 
+                marginBottom: 0 
+              }}>
+                Try a valid city name or check your spelling
+              </p>
+            </div>
+            <button
+              onClick={() => setError(null)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#fca5a5',
+                cursor: 'pointer',
+                fontSize: '1.25rem',
+                padding: '0'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+
         {/* Weather Display */}
-        {weather && (
+        {weather ? (
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr',
@@ -149,7 +280,8 @@ export default function Home() {
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '1.5rem',
-              padding: '2rem'
+              padding: '2rem',
+              animation: 'slideUp 0.5s ease-out'
             }}>
               <div style={{ 
                 display: 'flex', 
@@ -159,17 +291,32 @@ export default function Home() {
               }}>
                 <div>
                   <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: 0 }}>
-                    {weather.name}
+                    {weather.name}, {weather.sys.country}
                   </h2>
                   <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
-                    {new Date().toLocaleDateString()}
+                    {new Date().toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '5rem', fontWeight: 'bold' }}>
+                  <div style={{ fontSize: '5rem', fontWeight: 'bold', display: 'flex', alignItems: 'baseline' }}>
                     {Math.round(weather.main.temp)}°
+                    <img 
+                      src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+                      alt={weather.weather[0].description}
+                      style={{ width: '80px', height: '80px', marginLeft: '0.5rem' }}
+                    />
                   </div>
-                  <p style={{ color: '#94a3b8', textTransform: 'capitalize' }}>
+                  <p style={{ 
+                    color: '#94a3b8', 
+                    textTransform: 'capitalize',
+                    fontSize: '1.125rem',
+                    marginTop: '0.5rem'
+                  }}>
                     {weather.weather[0].description}
                   </p>
                 </div>
@@ -183,8 +330,10 @@ export default function Home() {
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '1rem',
-                  padding: '1.5rem'
-                }}>
+                  padding: '1.5rem',
+                  transition: 'transform 0.2s'
+                }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                   onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                   <div style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>Feels Like</div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {Math.round(weather.main.feels_like)}°
@@ -194,8 +343,10 @@ export default function Home() {
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '1rem',
-                  padding: '1.5rem'
-                }}>
+                  padding: '1.5rem',
+                  transition: 'transform 0.2s'
+                }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                   onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                   <div style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>Humidity</div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {weather.main.humidity}%
@@ -205,8 +356,10 @@ export default function Home() {
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '1rem',
-                  padding: '1.5rem'
-                }}>
+                  padding: '1.5rem',
+                  transition: 'transform 0.2s'
+                }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                   onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                   <div style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>Wind</div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {weather.wind.speed} m/s
@@ -216,8 +369,10 @@ export default function Home() {
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '1rem',
-                  padding: '1.5rem'
-                }}>
+                  padding: '1.5rem',
+                  transition: 'transform 0.2s'
+                }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                   onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                   <div style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>Pressure</div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                     {weather.main.pressure} hPa
@@ -226,6 +381,43 @@ export default function Home() {
               </div>
             </div>
           </div>
+        ) : (
+          /* Welcome Message - No weather data yet */
+          !error && (
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '1.5rem',
+              padding: '4rem 2rem',
+              textAlign: 'center',
+              animation: 'fadeIn 0.5s ease-in'
+            }}>
+              <div style={{ fontSize: '5rem', marginBottom: '1rem', opacity: 0.8 }}>
+                🌤️
+              </div>
+             <h2 style={{ 
+  fontSize: '2.5rem', 
+  fontWeight: 'bold', 
+  marginBottom: '1rem',
+  background: 'linear-gradient(90deg, #60a5fa, #06b6d4)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent'
+}}>
+  Welcome to WeatherFlow
+</h2>
+<p style={{ 
+  color: '#94a3b8', 
+  fontSize: '1.125rem', 
+  maxWidth: '500px', 
+  margin: '0 auto',
+  lineHeight: 1.6
+}}>
+   Discover accurate weather forecasts for any location worldwide.
+  Get temperature, humidity, wind speed, and pressure data instantly.
+</p>
+            </div>
+          )
         )}
 
         {/* Footer */}
@@ -240,6 +432,28 @@ export default function Home() {
           <p>Powered by OpenWeatherMap • Real-time data</p>
         </div>
       </div>
+
+      {/* Add CSS animations */}
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

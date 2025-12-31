@@ -2,74 +2,57 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🌐 API Route called');
-    
     const searchParams = request.nextUrl.searchParams;
-    const city = searchParams.get('city') || 'London';
-    const type = searchParams.get('type') || 'current';
+    const city = searchParams.get('city');
+    
+    // Validate city parameter
+    if (!city || city.trim() === '') {
+      return NextResponse.json(
+        { error: 'City parameter is required' },
+        { status: 400 }
+      );
+    }
     
     const API_KEY = process.env.OPENWEATHER_API_KEY;
     
     // Validate API key
     if (!API_KEY) {
-      console.error('❌ OPENWEATHER_API_KEY is missing!');
+      console.error('OPENWEATHER_API_KEY is missing');
       return NextResponse.json(
-        { error: 'API key not configured', message: 'Please check environment variables' },
+        { error: 'Service configuration error' },
         { status: 500 }
       );
     }
     
-    console.log(`🔍 Fetching ${type} weather for:`, city);
+    // Only fetch current weather (simplify)
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
+    );
     
-    if (type === 'forecast') {
-      // Get weather first for coordinates
-      const weatherRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
+    const data = await response.json();
+    
+    // Check if OpenWeather returned error
+    if (!response.ok || data.cod !== 200) {
+      return NextResponse.json(
+        { 
+          error: 'City not found',
+          message: data.message || `Could not find weather for "${city}"`
+        },
+        { status: 404 }
       );
-      
-      if (!weatherRes.ok) {
-        const error = await weatherRes.json();
-        throw new Error(error.message || 'City not found');
-      }
-      
-      const weatherData = await weatherRes.json();
-      const { lat, lon } = weatherData.coord;
-      
-      // Then get forecast
-      const forecastRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&cnt=5`
-      );
-      
-      const forecastData = await forecastRes.json();
-      return NextResponse.json(forecastData);
-      
-    } else {
-      // Current weather
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
-      );
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'City not found');
-      }
-      
-      const data = await response.json();
-      console.log('✅ Weather data fetched for:', data.name);
-      
-      return NextResponse.json(data);
     }
     
+    return NextResponse.json(data);
+    
   } catch (error: any) {
-    console.error('❌ API Error:', error.message);
+    console.error('Weather API error:', error.message);
     
     return NextResponse.json(
       { 
-        error: 'Failed to fetch weather data',
-        message: error.message || 'Unknown error',
-        suggestion: 'Check API key and city name'
+        error: 'Service temporarily unavailable',
+        message: 'Weather service is down. Please try again later.'
       },
-      { status: 500 }
+      { status: 503 } // Use 503 Service Unavailable instead of 500
     );
   }
 }
