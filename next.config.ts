@@ -6,18 +6,17 @@ const withPWA = require('next-pwa')({
   skipWaiting: true,
 });
 
+// Add to next.config.js
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    remotePatterns: [
+  async rewrites() {
+    return [
       {
-        protocol: 'https',
-        hostname: 'openweathermap.org',
-        pathname: '/img/wn/**',
+        source: '/showcase',
+        destination: '/showcase.html',
       },
-    ],
+    ];
   },
-  turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);

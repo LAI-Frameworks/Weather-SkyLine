@@ -179,7 +179,7 @@ export default function Home() {
             marginTop: '0.5rem'
           }}>
             <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-              Try:
+              Popular:
             </span>
             {quickSearchCities.map((c) => (
               <button
