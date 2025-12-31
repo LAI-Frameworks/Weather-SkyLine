@@ -164,7 +164,7 @@ export default function Home() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }}></span>
-                  Loading...
+                  Analyzing...
                 </span>
               ) : 'Search'}
             </button>
@@ -178,7 +178,7 @@ export default function Home() {
             marginTop: '0.5rem'
           }}>
             <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-              Try:
+              Popular:
             </span>
             {quickSearchCities.map((c) => (
               <button
@@ -441,19 +441,39 @@ export default function Home() {
           }
         }
           /* Mobile responsive scaling */
+/* Mobile responsive scaling - IMPROVED VERSION */
 @media (max-width: 768px) {
   .container {
-    transform: scale(0.85);
+    transform: scale(0.9);  /* Less aggressive scaling */
     transform-origin: top center;
     width: 100%;
+    min-height: 100vh;
+  }
+  
+  /* Increase touch targets even when scaled */
+  button, input, select {
+    min-height: 48px !important;  /* Bigger for easier touch */
+    min-width: 48px !important;
+  }
+  
+  /* Ensure text remains readable */
+  h1, h2, h3, p, span {
+    transform: scale(1.1);  /* Scale text back up slightly */
+    transform-origin: left center;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    transform: scale(0.75);
+    transform: scale(0.8);
     transform-origin: top center;
     width: 100%;
+  }
+  
+  /* Even larger touch targets on small phones */
+  button {
+    min-height: 52px !important;
+    padding: 12px 20px !important;
   }
 }
       `}</style>
