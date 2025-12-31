@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
 
 export default function Home() {
   const [weather, setWeather] = useState<any>(null);
