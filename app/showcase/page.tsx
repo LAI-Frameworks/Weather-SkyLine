@@ -1,0 +1,136 @@
+export default function ShowcasePage() {
+  return (
+    <div dangerouslySetInnerHTML={{ __html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>WeatherFlow - Professional Weather Dashboard PWA</title>
+          <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+              body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0c4a6e 100%); color: white; min-height: 100vh; line-height: 1.6; }
+              .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+              .header { text-align: center; padding: 4rem 0; background: rgba(255, 255, 255, 0.05); border-radius: 2rem; margin-bottom: 3rem; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+              .logo { font-size: 4.5rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+              @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+              h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(90deg, #60a5fa, #06b6d4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+              .tagline { font-size: 1.5rem; color: #94a3b8; max-width: 600px; margin: 0 auto 2rem; }
+              .badges { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin: 2rem 0; }
+              .badge { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.5rem 1.5rem; border-radius: 2rem; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+              .badge.pwa { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); }
+              .badge.next { background: rgba(0, 0, 0, 0.2); border-color: rgba(255, 255, 255, 0.3); }
+              .badge.ts { background: rgba(49, 120, 198, 0.2); border-color: rgba(49, 120, 198, 0.4); }
+              .badge.vercel { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
+              .cta-buttons { display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; }
+              .btn { padding: 1rem 2.5rem; border-radius: 1rem; font-size: 1.1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; transition: all 0.3s ease; }
+              .btn-primary { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; border: none; }
+              .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); }
+              .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+              .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-3px); }
+              .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 4rem 0; }
+              .feature-card { background: rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); transition: transform 0.3s ease; }
+              .feature-card:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.3); }
+              .feature-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
+              .feature-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #60a5fa; }
+              .feature-desc { color: #94a3b8; line-height: 1.7; }
+              .demo-preview { margin: 4rem 0; text-align: center; }
+              .demo-container { background: rgba(0, 0, 0, 0.3); border-radius: 2rem; padding: 2rem; margin-top: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); }
+              .demo-frame { width: 100%; max-width: 400px; height: 700px; border-radius: 1.5rem; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); margin: 0 auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+              .tech-stack { margin: 4rem 0; }
+              .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+              .tech-item { background: rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1.5rem; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+              .tech-name { font-weight: 600; margin-top: 1rem; color: #60a5fa; }
+              .footer { text-align: center; padding: 3rem 0; margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; }
+              @media (max-width: 768px) { .container { padding: 1rem; } h1 { font-size: 2.5rem; } .tagline { font-size: 1.2rem; } .cta-buttons { flex-direction: column; } .btn { width: 100%; justify-content: center; } .demo-frame { height: 600px; } }
+          </style>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      </head>
+      <body>
+          <div class="container">
+              <header class="header">
+                  <div class="logo">🌤️</div>
+                  <h1>WeatherFlow</h1>
+                  <p class="tagline">Professional Weather Dashboard PWA • Real-time forecasts with Indian cities focus</p>
+                  <div class="badges">
+                      <div class="badge pwa"><i class="fas fa-mobile-alt"></i> Installable PWA</div>
+                      <div class="badge next"><i class="fab fa-react"></i> Next.js 14</div>
+                      <div class="badge ts"><i class="fas fa-code"></i> TypeScript</div>
+                      <div class="badge vercel"><i class="fas fa-cloud"></i> Vercel Hosted</div>
+                  </div>
+                  <div class="cta-buttons">
+                      <a href="https://weather-skyline.vercel.app" class="btn btn-primary" target="_blank"><i class="fas fa-rocket"></i> Live Demo</a>
+                      <a href="https://github.com/yourusername/SkyLine" class="btn btn-secondary" target="_blank"><i class="fab fa-github"></i> View Code</a>
+                  </div>
+              </header>
+              <section class="features">
+                  <div class="feature-card"><div class="feature-icon">📱</div><h3 class="feature-title">Progressive Web App</h3><p class="feature-desc">Installable on iOS, Android, and Desktop. Works offline with service workers. Adds to home screen like a native app.</p></div>
+                  <div class="feature-card"><div class="feature-icon">🇮🇳</div><h3 class="feature-title">Indian Cities Focus</h3><p class="feature-desc">Features Delhi, Mumbai and other Indian cities prominently. Quick search with Indian metropolitan areas prioritized.</p></div>
+                  <div class="feature-card"><div class="feature-icon">🎨</div><h3 class="feature-title">Modern UI/UX</h3><p class="feature-desc">Glassmorphism design with gradients. Custom mobile scaling for optimal viewing. Smooth animations and transitions.</p></div>
+                  <div class="feature-card"><div class="feature-icon">💪</div><h3 class="feature-title">Robust Error Handling</h3><p class="feature-desc">Never crashes on bad input. User-friendly error messages. Graceful fallbacks for API failures.</p></div>
+                  <div class="feature-card"><div class="feature-icon">⚡</div><h3 class="feature-title">High Performance</h3><p class="feature-desc">Built with Next.js 14 for optimal performance. Deployed on Vercel Edge Network. Fast loading with code splitting.</p></div>
+                  <div class="feature-card"><div class="feature-icon">🔧</div><h3 class="feature-title">Production Ready</h3><p class="feature-desc">TypeScript for type safety. Comprehensive error boundaries. Responsive on all devices. Real-time data updates.</p></div>
+              </section>
+              <section class="demo-preview">
+                  <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Live Preview</h2>
+                  <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 2rem;">Try the live demo below or click the button above for full experience</p>
+                  <div class="demo-container">
+                      <div class="demo-frame">
+                          <iframe src="https://weather-skyline.vercel.app" width="100%" height="100%" style="border: none;" title="WeatherFlow Live Demo"></iframe>
+                      </div>
+                  </div>
+              </section>
+              <section class="tech-stack">
+                  <h2 style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center;">Technology Stack</h2>
+                  <p style="color: #94a3b8; text-align: center; max-width: 600px; margin: 0 auto 2rem;">Built with modern technologies for optimal performance and developer experience</p>
+                  <div class="tech-grid">
+                      <div class="tech-item"><i class="fab fa-react fa-3x" style="color: #61dafb;"></i><div class="tech-name">Next.js 14</div><small>App Router, Server Components</small></div>
+                      <div class="tech-item"><i class="fas fa-code fa-3x" style="color: #3178c6;"></i><div class="tech-name">TypeScript</div><small>Type safety, better DX</small></div>
+                      <div class="tech-item"><i class="fas fa-mobile-alt fa-3x" style="color: #5a0fc8;"></i><div class="tech-name">PWA</div><small>Service Workers, Manifest</small></div>
+                      <div class="tech-item"><i class="fas fa-cloud fa-3x" style="color: #000;"></i><div class="tech-name">Vercel</div><small>Edge Deployment, HTTPS</small></div>
+                      <div class="tech-item"><i class="fas fa-bolt fa-3x" style="color: #f59e0b;"></i><div class="tech-name">OpenWeather API</div><small>Real-time data</small></div>
+                      <div class="tech-item"><i class="fas fa-paint-brush fa-3x" style="color: #ec4899;"></i><div class="tech-name">CSS-in-JS</div><small>Custom styling system</small></div>
+                  </div>
+              </section>
+              <div style="text-align: center; margin: 4rem 0;">
+                  <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Ready to Experience?</h2>
+                  <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 2rem;">See the production-ready weather dashboard in action. Install it on your device or explore the code.</p>
+                  <div class="cta-buttons">
+                      <a href="https://weather-skyline.vercel.app" class="btn btn-primary" target="_blank"><i class="fas fa-external-link-alt"></i> Open Live App</a>
+                      <a href="https://github.com/LAI-Frameworks/Weather-SkyLine" class="btn btn-secondary" target="_blank"><i class="fab fa-github"></i> Explore Source Code</a>
+                  </div>
+              </div>
+              <footer class="footer">
+                  <p>© 2024 WeatherFlow • Professional Weather Dashboard PWA</p>
+                  <p style="margin-top: 1rem; font-size: 0.9rem;">Built with Next.js 14 • TypeScript • PWA Standards • Deployed on Vercel</p>
+                  <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #64748b;">Features real-time weather data from OpenWeatherMap API</p>
+              </footer>
+          </div>
+          <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                  const observer = new IntersectionObserver((entries) => {
+                      entries.forEach(entry => {
+                          if (entry.isIntersecting) {
+                              entry.target.style.opacity = '1';
+                              entry.target.style.transform = 'translateY(0)';
+                          }
+                      });
+                  }, { threshold: 0.1 });
+                  document.querySelectorAll('.feature-card').forEach(card => {
+                      card.style.opacity = '0';
+                      card.style.transform = 'translateY(20px)';
+                      card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                      observer.observe(card);
+                  });
+                  document.querySelectorAll('a').forEach(link => {
+                      link.addEventListener('click', function() {
+                          console.log('Clicked:', this.href);
+                      });
+                  });
+              });
+          </script>
+      </body>
+      </html>
+    ` }} />
+  );
+}
