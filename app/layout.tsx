@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Global Weather forecasts for Cities Worldwide',
   manifest: '/manifest.json',
   themeColor: '#0f172a',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

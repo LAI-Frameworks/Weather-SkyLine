@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PWAInstallPrompt from '@/app/components/PWAInstallPrompt';
 
 export default function Home() {
   const [weather, setWeather] = useState<any>(null);
@@ -9,66 +8,49 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const originalConsoleError = console.error;
-console.error = (...args) => {
-  if (typeof args[0] === 'string' && args[0].includes('Weather service error')) {
-    return; // Don't log our expected errors
-  }
-  originalConsoleError.apply(console, args);
-};
-
- const fetchWeather = async (cityName = city) => {
-  // Clear any previous error
-  setError(null);
-  
-  // Validate input
-  if (!cityName.trim()) {
-    setError("Please enter a city name");
-    return;
-  }
-
-  setLoading(true);
-  
-  try {
-    const res = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`);
+  const fetchWeather = async (cityName = city) => {
+    setError(null);
     
-    if (!res.ok) {
-      if (res.status === 404) {
-        throw new Error(`City "${cityName}" not found. Try another city.`);
-      } else if (res.status === 400) {
-        throw new Error('Invalid city name. Please check spelling.');
-      } else if (res.status === 429) {
-        throw new Error('Too many requests. Please wait a moment.');
-      } else if (res.status === 500) {
-        // Changed to more user-friendly message
-        throw new Error('Weather service is temporarily unavailable. Please try again in a few minutes.');
-      } else {
-        throw new Error('Unable to fetch weather data. Please try again.');
+    if (!cityName.trim()) {
+      setError("Please enter a city name");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`);
+      
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error(`City "${cityName}" not found. Try another city.`);
+        } else if (res.status === 400) {
+          throw new Error('Invalid city name. Please check spelling.');
+        } else if (res.status === 429) {
+          throw new Error('Too many requests. Please wait a moment.');
+        } else if (res.status === 500) {
+          throw new Error('Weather service is temporarily unavailable.');
+        } else {
+          throw new Error('Unable to fetch weather data.');
+        }
       }
+      
+      const data = await res.json();
+      
+      if (data.cod && data.cod !== 200) {
+        throw new Error(data.message || 'Failed to fetch weather data');
+      }
+      
+      setWeather(data);
+      setCity(cityName);
+      
+    } catch (error: any) {
+      setError(error.message || 'Weather service is currently unavailable.');
+      setWeather(null);
+    } finally {
+      setLoading(false);
     }
-    
-    const data = await res.json();
-    
-    // Check if API returned valid data
-    if (data.cod && data.cod !== 200) {
-      throw new Error(data.message || 'Failed to fetch weather data');
-    }
-    
-    setWeather(data);
-    setCity(cityName);
-    
-  } catch (error: any) {
-    // Don't log in production
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Weather fetch error:', error.message);
-    }
-    
-    setError(error.message || 'Weather service is currently unavailable. Please try again.');
-    setWeather(null);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Quick search suggestions
   const quickSearchCities = ['Tokyo', 'New York', 'London', 'Dubai', 'Mumbai', 'Singapore'];
@@ -178,7 +160,7 @@ console.error = (...args) => {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }}></span>
-                  Analyzing...
+                  Loading...
                 </span>
               ) : 'Search'}
             </button>
@@ -192,7 +174,7 @@ console.error = (...args) => {
             marginTop: '0.5rem'
           }}>
             <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-              Popular:
+              Try:
             </span>
             {quickSearchCities.map((c) => (
               <button
@@ -397,26 +379,26 @@ console.error = (...args) => {
               <div style={{ fontSize: '5rem', marginBottom: '1rem', opacity: 0.8 }}>
                 🌤️
               </div>
-             <h2 style={{ 
-  fontSize: '2.5rem', 
-  fontWeight: 'bold', 
-  marginBottom: '1rem',
-  background: 'linear-gradient(90deg, #60a5fa, #06b6d4)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent'
-}}>
-  Welcome to WeatherFlow
-</h2>
-<p style={{ 
-  color: '#94a3b8', 
-  fontSize: '1.125rem', 
-  maxWidth: '500px', 
-  margin: '0 auto',
-  lineHeight: 1.6
-}}>
-   Discover accurate weather forecasts for any location worldwide.
-  Get temperature, humidity, wind speed, and pressure data instantly.
-</p>
+              <h2 style={{ 
+                fontSize: '2.5rem', 
+                fontWeight: 'bold', 
+                marginBottom: '1rem',
+                background: 'linear-gradient(90deg, #60a5fa, #06b6d4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                Welcome to WeatherFlow
+              </h2>
+              <p style={{ 
+                color: '#94a3b8', 
+                fontSize: '1.125rem', 
+                maxWidth: '500px', 
+                margin: '0 auto',
+                lineHeight: 1.6
+              }}>
+                Discover accurate weather forecasts for any location worldwide.
+                Get temperature, humidity, wind speed, and pressure data instantly.
+              </p>
             </div>
           )
         )}
@@ -435,26 +417,74 @@ console.error = (...args) => {
       </div>
 
       {/* Add CSS animations */}
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+     <style jsx>{`
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* MOBILE FIX: Scale everything down */
+  @media (max-width: 768px) {
+    body {
+      padding: 1rem !important;
+    }
+    
+    /* Scale header */
+    h1 {
+      font-size: 2rem !important;
+    }
+    
+    /* Scale temperature */
+    div[style*="font-size: 5rem"] {
+      font-size: 3.5rem !important;
+    }
+    
+    /* Scale weather icon */
+    img[style*="width: 80px"] {
+      width: 60px !important;
+      height: 60px !important;
+    }
+    
+    /* Scale city name */
+    h2[style*="font-size: 2.5rem"] {
+      font-size: 1.75rem !important;
+    }
+    
+    /* Scale stats */
+    div[style*="font-size: 2rem"] {
+      font-size: 1.5rem !important;
+    }
+    
+    /* Make grid single column on mobile */
+    div[style*="grid-template-columns: repeat(2, 1fr)"] {
+      grid-template-columns: 1fr !important;
+      gap: 0.75rem !important;
+    }
+    
+    /* Scale padding */
+    div[style*="padding: 2rem"] {
+      padding: 1.5rem !important;
+    }
+    
+    div[style*="padding: 1.5rem"] {
+      padding: 1rem !important;
+    }
+  }
+`}</style>
     </div>
   );
 }
