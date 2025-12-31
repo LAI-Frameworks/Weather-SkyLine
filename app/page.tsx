@@ -56,7 +56,7 @@ export default function Home() {
   const quickSearchCities = ['Tokyo', 'New York', 'London', 'Dubai', 'Mumbai', 'Singapore'];
 
   return (
-    <div style={{
+    <div className="container" style={{
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0c4a6e 100%)',
       minHeight: '100vh',
       color: 'white',
@@ -417,74 +417,42 @@ export default function Home() {
       </div>
 
       {/* Add CSS animations */}
-     <style jsx>{`
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+          /* Mobile responsive scaling */
+@media (max-width: 768px) {
+  .container {
+    transform: scale(0.85);
+    transform-origin: top center;
+    width: 100%;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .container {
+    transform: scale(0.75);
+    transform-origin: top center;
+    width: 100%;
   }
-  @keyframes slideUp {
-    from { 
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to { 
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* MOBILE FIX: Scale everything down */
-  @media (max-width: 768px) {
-    body {
-      padding: 1rem !important;
-    }
-    
-    /* Scale header */
-    h1 {
-      font-size: 2rem !important;
-    }
-    
-    /* Scale temperature */
-    div[style*="font-size: 5rem"] {
-      font-size: 3.5rem !important;
-    }
-    
-    /* Scale weather icon */
-    img[style*="width: 80px"] {
-      width: 60px !important;
-      height: 60px !important;
-    }
-    
-    /* Scale city name */
-    h2[style*="font-size: 2.5rem"] {
-      font-size: 1.75rem !important;
-    }
-    
-    /* Scale stats */
-    div[style*="font-size: 2rem"] {
-      font-size: 1.5rem !important;
-    }
-    
-    /* Make grid single column on mobile */
-    div[style*="grid-template-columns: repeat(2, 1fr)"] {
-      grid-template-columns: 1fr !important;
-      gap: 0.75rem !important;
-    }
-    
-    /* Scale padding */
-    div[style*="padding: 2rem"] {
-      padding: 1.5rem !important;
-    }
-    
-    div[style*="padding: 1.5rem"] {
-      padding: 1rem !important;
-    }
-  }
-`}</style>
+}
+      `}</style>
     </div>
   );
 }
