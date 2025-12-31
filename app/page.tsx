@@ -21,19 +21,23 @@ export default function Home() {
     try {
       const res = await fetch(`/api/weather?city=${encodeURIComponent(cityName)}`);
       
-      if (!res.ok) {
-        if (res.status === 404) {
-          throw new Error(`City "${cityName}" not found. Try another city.`);
-        } else if (res.status === 400) {
-          throw new Error('Invalid city name. Please check spelling.');
-        } else if (res.status === 429) {
-          throw new Error('Too many requests. Please wait a moment.');
-        } else if (res.status === 500) {
-          throw new Error('Weather service is temporarily unavailable.');
-        } else {
-          throw new Error('Unable to fetch weather data.');
-        }
-      }
+    if (!res.ok) {
+  if (res.status === 404) {
+    throw new Error(`City "${cityName}" not found. Try another city.`);
+  } else if (res.status === 400) {
+    throw new Error('Invalid city name. Please check spelling.');
+  } else if (res.status === 429) {
+    throw new Error('Too many requests. Please wait a moment.');
+  } else {
+    // For all other errors, try to get the actual error message from API
+    try {
+      const errorData = await res.json();
+      throw new Error(errorData.message || `Error ${res.status}: ${res.statusText}`);
+    } catch {
+      throw new Error(`Weather service error (${res.status}). Please try again.`);
+    }
+  }
+}
       
       const data = await res.json();
       
