@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 export default function Home() {
   const [weather, setWeather] = useState<any>(null);
@@ -419,7 +420,7 @@ export default function Home() {
           <p>Powered by OpenWeatherMap • Real-time data</p>
         </div>
       </div>
-
+  <PWAInstallPrompt />
       {/* Add CSS animations */}
       <style jsx>{`
         @keyframes spin {
