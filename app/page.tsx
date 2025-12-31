@@ -164,7 +164,7 @@ export default function Home() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }}></span>
-                  Analyzing...
+                  Loading...
                 </span>
               ) : 'Search'}
             </button>
@@ -178,7 +178,7 @@ export default function Home() {
             marginTop: '0.5rem'
           }}>
             <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-              Popular:
+              Try:
             </span>
             {quickSearchCities.map((c) => (
               <button
@@ -456,7 +456,6 @@ export default function Home() {
     width: 100%;
   }
 }
-
       `}</style>
     </div>
   );
